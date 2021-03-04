@@ -2,7 +2,7 @@
 """
 Created on Wed Mar  3 15:45:49 2021
 
-@author: CMDR CodexNecro81
+@author: CMDR CodexNecro
 """
 from tqdm import tqdm
 
