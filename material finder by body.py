@@ -2,7 +2,7 @@
 """
 Created on Wed Mar  3 15:45:49 2021
 
-@author: CMDR CodexNecro
+@author: CMDR CodexNecro81
 """
 from tqdm import tqdm
 
@@ -52,34 +52,45 @@ def contains_material(value):
 
 print()
 print('Fetching sites...')
+results_by_page = 100
 
 request=[]
 for url in tqdm(url_list):
-    temp = requests.get(url).json()
-    for body in temp:
-        body['url']=url
-        body['site_type']=''
-        if(len(body['apsites'])>0):
-            body['site_type']+='Ap'
-        if(len(body['bmsites'])>0):
-            body['site_type']+='Bm'
-        if(len(body['btsites'])>0):
-            body['site_type']+='Bt'
-        if(len(body['cssites'])>0):
-            body['site_type']+='Cs'
-        if(len(body['fgsites'])>0):
-            body['site_type']+='Fg'
-        if(len(body['fmsites'])>0):
-            body['site_type']+='Fm'
-        if(len(body['gvsites'])>0):
-            body['site_type']+='Gv'
-        if(len(body['gysites'])>0):
-            body['site_type']+='Gy'
-        if(len(body['lssites'])>0):
-            body['site_type']+='Ls'
-        if(len(body['twsites'])>0):
-            body['site_type']+='Tw'
-    request.extend(temp)
+    start = 0
+    http_request = requests.get(url + '&_limit=' + str(results_by_page))
+    temp = http_request.json()
+    
+    while len(temp)>0:
+       for body in temp:
+            body['url']=url
+            body['site_type']=''
+            if(len(body['apsites'])>0):
+                body['site_type']+='Ap'
+            if(len(body['bmsites'])>0):
+                body['site_type']+='Bm'
+            if(len(body['btsites'])>0):
+                body['site_type']+='Bt'
+            if(len(body['cssites'])>0):
+                body['site_type']+='Cs'
+            if(len(body['fgsites'])>0):
+                body['site_type']+='Fg'
+            if(len(body['fmsites'])>0):
+                body['site_type']+='Fm'
+            if(len(body['gvsites'])>0):
+                body['site_type']+='Gv'
+            if(len(body['gysites'])>0):
+                body['site_type']+='Gy'
+            if(len(body['lssites'])>0):
+                body['site_type']+='Ls'
+            if(len(body['twsites'])>0):
+                body['site_type']+='Tw'
+                
+       start+=results_by_page
+       http_request = requests.get(url +
+                                   '&_limit=' + str(results_by_page) +
+                                   '&_start=' + str(start))
+       temp = http_request.json()
+       request.extend(temp)
 
 current_location_info = EDSM_lib.GetSysData(current_location,1,1)
 
@@ -119,47 +130,47 @@ print()
 print('Total systems filtered:', '{}'.format(len(close_sites)), ', plotting...')
 
 
-# Initialize fitness function object using coords_list
-fitness_coords = mlrose.TravellingSales(coords = coords_list)
+# # Initialize fitness function object using coords_list
+# fitness_coords = mlrose.TravellingSales(coords = coords_list)
 
-problem_fit = mlrose.TSPOpt(length = len(coords_list), fitness_fn = fitness_coords,
-                            maximize=False)
+# problem_fit = mlrose.TSPOpt(length = len(coords_list), fitness_fn = fitness_coords,
+#                             maximize=False)
 
-# # Solve problem using simulated annealing
-# best_state, best_fitness = mlrose.simulated_annealing(problem_fit,
-#                                                       random_state = 2,
-#                                                       schedule=mlrose.GeomDecay(),
-#                                                       max_attempts=200)
+# # # Solve problem using simulated annealing
+# # best_state, best_fitness = mlrose.simulated_annealing(problem_fit,
+# #                                                       random_state = 2,
+# #                                                       schedule=mlrose.GeomDecay(),
+# #                                                       max_attempts=200)
 
-# Solve problem using random hill climb
-best_state, best_fitness = mlrose.hill_climb(problem_fit,
-                                              random_state = 2)
+# # Solve problem using random hill climb
+# best_state, best_fitness = mlrose.hill_climb(problem_fit,
+#                                               random_state = 2)
 
-seq = [x['distance'] for x in close_sites]
-closest_hop = next((index for (index, d) in enumerate(close_sites) if d['distance'] == min(seq)), None)
+# seq = [x['distance'] for x in close_sites]
+# closest_hop = next((index for (index, d) in enumerate(close_sites) if d['distance'] == min(seq)), None)
 
-d=deque(best_state)
-d.rotate(-list(d).index(closest_hop))
+# d=deque(best_state)
+# d.rotate(-list(d).index(closest_hop))
 
-print()
-print('Total distance:', "{:.3f}".format(best_fitness), 'ly')
+# print()
+# print('Total distance:', "{:.3f}".format(best_fitness), 'ly')
 
-idx=0
-strformat = '{:' + str(max(int(np.ceil(np.log10(len(close_sites)))),2)+1) + '}'
-strformat += ' {:' + str(systemlen) + '}'
-strformat += ' {:' + str(bodylen) + '}'
-strformat += ' {:' + str(typelen) + '}'
-strformat += ' {:' + str(distlen) + '}'
-strformat += ' {:9}'
+# idx=0
+# strformat = '{:' + str(max(int(np.ceil(np.log10(len(close_sites)))),2)+1) + '}'
+# strformat += ' {:' + str(systemlen) + '}'
+# strformat += ' {:' + str(bodylen) + '}'
+# strformat += ' {:' + str(typelen) + '}'
+# strformat += ' {:' + str(distlen) + '}'
+# strformat += ' {:9}'
 
-print(strformat.format('Hop', 'System', 'Body', 'Type', 'Dist', 'DB'))
-for hop in d:
-    print(strformat.format(idx+1,
-                            close_sites[hop]['system']['systemName'],
-                            close_sites[hop]['bodyName'].replace(close_sites[hop]['system']['systemName']+" ", ""),
-                            close_sites[hop]['site_type'],
-                            int(close_sites[hop]['distance']),
-                            close_sites[hop]['url'].replace(prefix + '&','').replace('_null=false','')
-                            )
-          )
-    idx+=1
+# print(strformat.format('Hop', 'System', 'Body', 'Type', 'Dist', 'DB'))
+# for hop in d:
+#     print(strformat.format(idx+1,
+#                             close_sites[hop]['system']['systemName'],
+#                             close_sites[hop]['bodyName'].replace(close_sites[hop]['system']['systemName']+" ", ""),
+#                             close_sites[hop]['site_type'],
+#                             int(close_sites[hop]['distance']),
+#                             close_sites[hop]['url'].replace(prefix + '&','').replace('_null=false','')
+#                             )
+#           )
+#     idx+=1
