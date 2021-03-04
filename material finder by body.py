@@ -130,47 +130,47 @@ print()
 print('Total systems filtered:', '{}'.format(len(close_sites)), ', plotting...')
 
 
-# # Initialize fitness function object using coords_list
-# fitness_coords = mlrose.TravellingSales(coords = coords_list)
+# Initialize fitness function object using coords_list
+fitness_coords = mlrose.TravellingSales(coords = coords_list)
 
-# problem_fit = mlrose.TSPOpt(length = len(coords_list), fitness_fn = fitness_coords,
-#                             maximize=False)
+problem_fit = mlrose.TSPOpt(length = len(coords_list), fitness_fn = fitness_coords,
+                            maximize=False)
 
-# # # Solve problem using simulated annealing
-# # best_state, best_fitness = mlrose.simulated_annealing(problem_fit,
-# #                                                       random_state = 2,
-# #                                                       schedule=mlrose.GeomDecay(),
-# #                                                       max_attempts=200)
+# # Solve problem using simulated annealing
+# best_state, best_fitness = mlrose.simulated_annealing(problem_fit,
+#                                                       random_state = 2,
+#                                                       schedule=mlrose.GeomDecay(),
+#                                                       max_attempts=200)
 
-# # Solve problem using random hill climb
-# best_state, best_fitness = mlrose.hill_climb(problem_fit,
-#                                               random_state = 2)
+# Solve problem using random hill climb
+best_state, best_fitness = mlrose.hill_climb(problem_fit, 
+                                              random_state = 2)
 
-# seq = [x['distance'] for x in close_sites]
-# closest_hop = next((index for (index, d) in enumerate(close_sites) if d['distance'] == min(seq)), None)
+seq = [x['distance'] for x in close_sites]
+closest_hop = next((index for (index, d) in enumerate(close_sites) if d['distance'] == min(seq)), None)
 
-# d=deque(best_state)
-# d.rotate(-list(d).index(closest_hop))
+d=deque(best_state)
+d.rotate(-list(d).index(closest_hop))
 
-# print()
-# print('Total distance:', "{:.3f}".format(best_fitness), 'ly')
+print()
+print('Total distance:', "{:.3f}".format(best_fitness), 'ly')
 
-# idx=0
-# strformat = '{:' + str(max(int(np.ceil(np.log10(len(close_sites)))),2)+1) + '}'
-# strformat += ' {:' + str(systemlen) + '}'
-# strformat += ' {:' + str(bodylen) + '}'
-# strformat += ' {:' + str(typelen) + '}'
-# strformat += ' {:' + str(distlen) + '}'
-# strformat += ' {:9}'
+idx=0
+strformat = '{:' + str(max(int(np.ceil(np.log10(len(close_sites)))),2)+1) + '}'
+strformat += ' {:' + str(systemlen) + '}'
+strformat += ' {:' + str(bodylen) + '}'
+strformat += ' {:' + str(typelen) + '}'
+strformat += ' {:' + str(distlen) + '}'
+strformat += ' {:9}'
 
-# print(strformat.format('Hop', 'System', 'Body', 'Type', 'Dist', 'DB'))
-# for hop in d:
-#     print(strformat.format(idx+1,
-#                             close_sites[hop]['system']['systemName'],
-#                             close_sites[hop]['bodyName'].replace(close_sites[hop]['system']['systemName']+" ", ""),
-#                             close_sites[hop]['site_type'],
-#                             int(close_sites[hop]['distance']),
-#                             close_sites[hop]['url'].replace(prefix + '&','').replace('_null=false','')
-#                             )
-#           )
-#     idx+=1
+print(strformat.format('Hop', 'System', 'Body', 'Type', 'Dist', 'DB'))
+for hop in d:
+    print(strformat.format(idx+1,
+                            close_sites[hop]['system']['systemName'],
+                            close_sites[hop]['bodyName'].replace(close_sites[hop]['system']['systemName']+" ", ""),
+                            close_sites[hop]['site_type'],
+                            int(close_sites[hop]['distance']),
+                            close_sites[hop]['url'].replace(prefix + '&','').replace('_null=false','')
+                            )
+          )
+    idx+=1
